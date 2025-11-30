@@ -1,0 +1,30 @@
+[
+  {
+    "id": "m001",
+    "nom": "Doliprane",
+    "dosage": "500 mg",
+    "forme": "Comprimé",
+    "quantiteStock": 120
+  },
+  {
+    "id": "m002",
+    "nom": "Amoxicilline",
+    "dosage": "1 g",
+    "forme": "Comprimé",
+    "quantiteStock": 80
+  },
+  {
+    "id": "m003",
+    "nom": "Ventoline",
+    "dosage": "100 µg",
+    "forme": "Inhalateur",
+    "quantiteStock": 45
+  },
+  {
+    "id": "m004",
+    "nom": "Ibuprofène",
+    "dosage": "400 mg",
+    "forme": "Comprimé",
+    "quantiteStock": 150
+  }
+]

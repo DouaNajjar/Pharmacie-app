@@ -1,20 +1,21 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import AppNavigator from './src/navigation/AppNavigator';
+import { initializeData } from './src/data/seedData';
+import { clearAll } from './src/api/asyncStorage';  // Ajoutez cet import
 
 export default function App() {
+  useEffect(() => {
+    async function resetAndInit() {
+      await clearAll();  // Efface tout
+      await initializeData();  // Recharge les données seed (utilisateurs inclus)
+    }
+    resetAndInit();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
