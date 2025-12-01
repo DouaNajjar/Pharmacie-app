@@ -3,5 +3,35 @@
     "id": "u333",
     "nom": "Pharmacie Centrale",
     "adresse": "123 Rue Principale, Paris"
+  },
+  {
+    "id": "ph001",
+    "nom": "Citypharma",
+    "adresse": "26 Rue du Four, 75006 Paris"
+  },
+  {
+    "id": "ph002",
+    "nom": "Pharmacie du Marais",
+    "adresse": "Rue des Francs Bourgeois, 75004 Paris"
+  },
+  {
+    "id": "ph003",
+    "nom": "Pharmacie Saint Honoré",
+    "adresse": "Rue Saint-Honoré, 75001 Paris"
+  },
+  {
+    "id": "ph004",
+    "nom": "Pharmacie Monge",
+    "adresse": "74 Rue Monge, 75005 Paris"
+  },
+  {
+    "id": "ph005",
+    "nom": "Pharmacie Drugstore des Champs-Élysées",
+    "adresse": "133 Av. des Champs-Élysées, 75008 Paris"
+  },
+  {
+    "id": "ph006",
+    "nom": "Pharmacie Saint Germain des Prés",
+    "adresse": "45 Rue Bonaparte, 75006 Paris"
   }
 ]

@@ -1,17 +1,16 @@
 import React, { useEffect } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, Animated } from 'react-native';
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useMedicamentStore } from '../../store/medicamentStore';
-import MedicamentItem from '../../components/pharmacien/MedicamentItem';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function MedicamentListScreen({ navigation }) {
   const { medicaments, loadMedicaments, deleteMedicament } = useMedicamentStore();
   const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      loadData();
-    });
+    const unsubscribe = navigation.addListener('focus', () => { loadData(); });
     return unsubscribe;
   }, [navigation]);
 
@@ -22,48 +21,79 @@ export default function MedicamentListScreen({ navigation }) {
   };
 
   const handleDelete = (id) => {
-    Alert.alert(
-      'Confirmation',
-      'Voulez-vous vraiment supprimer ce médicament?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteMedicament(id);
-            loadData();
-          }
-        }
-      ]
-    );
+    deleteMedicament(id).then(loadData);
   };
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  if (loading) return <LoadingSpinner />;
+
+  const renderItem = ({ item, index }) => {
+    const scale = new Animated.Value(0);
+
+    Animated.spring(scale, {
+      toValue: 1,
+      friction: 6,
+      useNativeDriver: true,
+      delay: index * 80
+    }).start();
+
+    const lowStock = item.quantiteStock <= 5;
+
+    return (
+      <Animated.View style={{ transform: [{ scale }], marginBottom: 14 }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('MedicamentForm', { medicament: item })}
+          style={styles.card}
+          activeOpacity={0.85}
+        >
+          <View style={styles.cardRow}>
+            <Ionicons name="medkit-outline" size={28} color="#2196F3" style={{ marginRight: 12 }} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.medName}>{item.nom}</Text>
+              <Text style={styles.medDetail}>{item.dosage} - {item.forme}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+                <Text style={[styles.medStock, lowStock && { color: '#F44336', fontWeight: '700' }]}>
+                  Stock: {item.quantiteStock}
+                </Text>
+                {lowStock && (
+                  <Text style={styles.lowStockBadge}>RUPTURE</Text>
+                )}
+              </View>
+            </View>
+            <TouchableOpacity onPress={() => handleDelete(item.id)}>
+              <Ionicons name="trash-outline" size={24} color="#F44336" />
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={styles.addButton}
         onPress={() => navigation.navigate('MedicamentForm')}
+        style={{ marginBottom: 16 }}
       >
-        <Text style={styles.addButtonText}>+ Ajouter un médicament</Text>
+        <LinearGradient
+          colors={['#2196F3', '#64B5F6']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.addButton}
+        >
+          <Ionicons name="add-circle-outline" size={22} color="#fff" style={{ marginRight: 8 }} />
+          <Text style={styles.addButtonText}>Ajouter un médicament</Text>
+        </LinearGradient>
       </TouchableOpacity>
 
       <FlatList
         data={medicaments}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <MedicamentItem
-            medicament={item}
-            onEdit={() => navigation.navigate('MedicamentForm', { medicament: item })}
-            onDelete={() => handleDelete(item.id)}
-          />
-        )}
+        keyExtractor={item => item.id}
+        renderItem={renderItem}
         ListEmptyComponent={
-          <Text style={styles.empty}>Aucun médicament en stock</Text>
+          <View style={{ marginTop: 60, alignItems: 'center' }}>
+            <Ionicons name="medkit-outline" size={64} color="#2196F3" style={{ marginBottom: 12 }} />
+            <Text style={styles.empty}>Aucun médicament en stock</Text>
+          </View>
         }
         refreshing={loading}
         onRefresh={loadData}
@@ -76,20 +106,20 @@ export default function MedicamentListScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0F4F8',
+    backgroundColor: '#F5F7FA',
     padding: 16
   },
   addButton: {
-    backgroundColor: '#2196F3',
-    padding: 16,
-    borderRadius: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    paddingVertical: 14,
+    borderRadius: 28,
+    elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
-    elevation: 5
   },
   addButtonText: {
     color: '#FFFFFF',
@@ -99,10 +129,29 @@ const styles = StyleSheet.create({
   list: {
     paddingBottom: 16
   },
-  empty: {
-    textAlign: 'center',
-    marginTop: 60,
-    fontSize: 18,
-    color: '#9E9E9E'
-  }
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3
+  },
+  cardRow: { flexDirection: 'row', alignItems: 'center' },
+  medName: { fontSize: 16, fontWeight: '600', color: '#212121' },
+  medDetail: { fontSize: 14, color: '#666', marginTop: 2 },
+  medStock: { fontSize: 14, color: '#2196F3', fontWeight: '500' },
+  lowStockBadge: {
+    marginLeft: 8,
+    backgroundColor: '#F44336',
+    color: '#fff',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    fontSize: 12,
+    fontWeight: '700'
+  },
+  empty: { fontSize: 18, color: '#9E9E9E', textAlign: 'center' }
 });

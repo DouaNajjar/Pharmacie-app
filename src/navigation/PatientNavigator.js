@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { FontAwesome5 } from '@expo/vector-icons';
 import OrdonnanceListScreen from '../screens/patient/OrdonnanceListScreen';
 import OrdonnanceDetailScreen from '../screens/patient/OrdonnanceDetailScreen';
 import CommandeCreateScreen from '../screens/patient/CommandeCreateScreen';
@@ -51,16 +52,32 @@ function CommandeStack() {
 
 export default function PatientNavigator() {
   return (
-    <Tab.Navigator screenOptions={{ tabBarActiveTintColor: '#4CAF50', tabBarInactiveTintColor: '#9E9E9E', tabBarStyle: styles.tabBar }}>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarActiveTintColor: '#4CAF50',
+        tabBarInactiveTintColor: '#9E9E9E',
+        tabBarStyle: styles.tabBar,
+        tabBarIcon: ({ color, size }) => {
+          let iconName;
+
+          if (route.name === 'Ordonnances') {
+            iconName = 'file-medical-alt';
+          } else if (route.name === 'Commandes') {
+            iconName = 'clipboard-list';
+          }
+
+          return <FontAwesome5 name={iconName} size={size} color={color} />;
+        },
+        headerShown: false
+      })}
+    >
       <Tab.Screen 
         name="Ordonnances" 
         component={OrdonnanceStack}
-        options={{ headerShown: false }}
       />
       <Tab.Screen 
         name="Commandes" 
         component={CommandeStack}
-        options={{ headerShown: false }}
       />
     </Tab.Navigator>
   );

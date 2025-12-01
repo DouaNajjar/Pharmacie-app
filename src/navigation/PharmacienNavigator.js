@@ -1,6 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import Ionicons from "react-native-vector-icons/Ionicons";
+
 import CommandeListScreen from '../screens/pharmacien/CommandeListScreen';
 import CommandeDetailScreen from '../screens/pharmacien/CommandeDetailScreen';
 import MedicamentListScreen from '../screens/pharmacien/MedicamentListScreen';
@@ -11,7 +13,13 @@ const Stack = createStackNavigator();
 
 function CommandeStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerStyle: styles.header, headerTintColor: '#FFFFFF', headerTitleStyle: styles.headerTitle }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: styles.header,
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: styles.headerTitle
+      }}
+    >
       <Stack.Screen 
         name="CommandeList" 
         component={CommandeListScreen}
@@ -28,7 +36,13 @@ function CommandeStack() {
 
 function MedicamentStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerStyle: styles.header, headerTintColor: '#FFFFFF', headerTitleStyle: styles.headerTitle }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: styles.header,
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: styles.headerTitle
+      }}
+    >
       <Stack.Screen 
         name="MedicamentList" 
         component={MedicamentListScreen}
@@ -45,17 +59,29 @@ function MedicamentStack() {
 
 export default function PharmacienNavigator() {
   return (
-    <Tab.Navigator screenOptions={{ tabBarActiveTintColor: '#2196F3', tabBarInactiveTintColor: '#9E9E9E', tabBarStyle: styles.tabBar }}>
-      <Tab.Screen 
-        name="Commandes" 
-        component={CommandeStack}
-        options={{ headerShown: false }}
-      />
-      <Tab.Screen 
-        name="Médicaments" 
-        component={MedicamentStack}
-        options={{ headerShown: false }}
-      />
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: '#2196F3',
+        tabBarInactiveTintColor: '#9E9E9E',
+        tabBarStyle: styles.tabBar,
+
+        // ------------------ Icônes ajoutées ------------------
+        tabBarIcon: ({ color, size, focused }) => {
+          let iconName;
+
+          if (route.name === "Commandes") {
+            iconName = focused ? "document-text" : "document-text-outline";
+          } else if (route.name === "Médicaments") {
+            iconName = focused ? "medkit" : "medkit-outline";
+          }
+
+          return <Ionicons name={iconName} size={26} color={color} />;
+        }
+      })}
+    >
+      <Tab.Screen name="Commandes" component={CommandeStack} />
+      <Tab.Screen name="Médicaments" component={MedicamentStack} />
     </Tab.Navigator>
   );
 }
