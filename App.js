@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 import { initializeData } from './src/data/seedData';
-import { clearAll } from './src/api/asyncStorage';  // Ajoutez cet import
+import { clearAll } from './src/api/asyncStorage';  
 
 export default function App() {
   useEffect(() => {

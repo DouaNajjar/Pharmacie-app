@@ -7,6 +7,7 @@ import CommandeListScreen from '../screens/pharmacien/CommandeListScreen';
 import CommandeDetailScreen from '../screens/pharmacien/CommandeDetailScreen';
 import MedicamentListScreen from '../screens/pharmacien/MedicamentListScreen';
 import MedicamentFormScreen from '../screens/pharmacien/MedicamentFormScreen';
+import DashboardScreen from '../screens/pharmacien/DashboardScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -57,6 +58,24 @@ function MedicamentStack() {
   );
 }
 
+function DashboardStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: styles.header,
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: styles.headerTitle
+      }}
+    >
+      <Stack.Screen
+        name="DashboardMain"
+        component={DashboardScreen}
+        options={{ title: 'Tableau de bord' }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 export default function PharmacienNavigator() {
   return (
     <Tab.Navigator
@@ -70,7 +89,9 @@ export default function PharmacienNavigator() {
         tabBarIcon: ({ color, size, focused }) => {
           let iconName;
 
-          if (route.name === "Commandes") {
+          if (route.name === "Dashboard") {
+            iconName = focused ? "speedometer" : "speedometer-outline";
+          } else if (route.name === "Commandes") {
             iconName = focused ? "document-text" : "document-text-outline";
           } else if (route.name === "Médicaments") {
             iconName = focused ? "medkit" : "medkit-outline";
@@ -80,6 +101,7 @@ export default function PharmacienNavigator() {
         }
       })}
     >
+      <Tab.Screen name="Dashboard" component={DashboardStack} options={{ title: 'Tableau' }} />
       <Tab.Screen name="Commandes" component={CommandeStack} />
       <Tab.Screen name="Médicaments" component={MedicamentStack} />
     </Tab.Navigator>
