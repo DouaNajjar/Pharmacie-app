@@ -1,18 +1,32 @@
-import React from 'react';
-import { View, TextInput, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export default function Input({ label, value, onChangeText, placeholder, secureTextEntry = false, error }) {
+export default function Input({ label, value, onChangeText, placeholder, secureTextEntry = false, error, showToggle = false, containerStyle, inputStyle, ...rest }) {
+  const [visible, setVisible] = useState(false);
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <TextInput
-        style={[styles.input, error && styles.inputError]}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        secureTextEntry={secureTextEntry}
-        placeholderTextColor="#9E9E9E"
-      />
+
+      <View style={styles.row}>
+        <TextInput
+          style={[styles.input, inputStyle, error && styles.inputError]}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          secureTextEntry={showToggle ? !visible && secureTextEntry : secureTextEntry}
+          placeholderTextColor="#9E9E9E"
+          {...rest}
+        />
+
+        {showToggle && (
+          <TouchableOpacity onPress={() => setVisible(v => !v)} style={styles.eyeButton} accessibilityLabel={visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}>
+            <Ionicons name={visible ? 'eye' : 'eye-off'} size={20} color="#616161" />
+          </TouchableOpacity>
+        )}
+      </View>
+
       {error && <Text style={styles.error}>{error}</Text>}
     </View>
   );
@@ -28,7 +42,12 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     color: '#424242'
   },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
   input: {
+    flex: 1,
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 12,
@@ -40,6 +59,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2
+  },
+  eyeButton: {
+    marginLeft: 8,
+    padding: 8
   },
   inputError: {
     borderColor: '#F44336'

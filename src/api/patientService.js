@@ -29,5 +29,18 @@ export const deletePatient = async (id) => {
 
 export const getPatientById = async (id) => {
   const patients = await getPatients();
-  return patients.find(p => p.id === id);
+  const found = patients.find(p => p.id === id);
+  if (found) return found;
+
+  // Fallback: some seed data stores patients inside 'users' key (role === 'patient').
+  // If no patient record exists under 'patients', try reading 'users'.
+  try {
+    const users = (await getItem('users')) || [];
+    const user = users.find(u => u.id === id && (u.role === 'patient' || u.role === 'patient'));
+    if (user) return user;
+  } catch (err) {
+    // ignore and return null below
+  }
+
+  return null;
 };

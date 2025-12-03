@@ -4,6 +4,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { getCommandeById, updateCommandeStatus } from '../../api/commandeService';
 import { getOrdonnanceById } from '../../api/ordonnanceService';
 import { getMedicamentById, updateMedicament } from '../../api/medicamentService';
+import { getPatientById } from '../../api/patientService';
 import { COMMANDE_STATUS, STATUS_LABELS } from '../../utils/constants';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -12,6 +13,7 @@ export default function CommandeDetailScreen({ route, navigation }) {
   const { commandeId } = route.params;
   const [commande, setCommande] = useState(null);
   const [ordonnance, setOrdonnance] = useState(null);
+  const [patient, setPatient] = useState(null);
   const [medicaments, setMedicaments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,6 +24,13 @@ export default function CommandeDetailScreen({ route, navigation }) {
     try {
       const cmd = await getCommandeById(commandeId);
       setCommande(cmd);
+      // load patient info (if available)
+      try {
+        const p = await getPatientById(cmd.patientId);
+        setPatient(p || null);
+      } catch (err) {
+        setPatient(null);
+      }
       const ord = await getOrdonnanceById(cmd.ordonnanceId);
       setOrdonnance(ord);
       const meds = await Promise.all(ord.medicaments.map(async (med) => {
@@ -99,7 +108,7 @@ export default function CommandeDetailScreen({ route, navigation }) {
       <View style={styles.card}>
         <View style={styles.headerRow}>
           <Ionicons name="receipt-outline" size={24} color="#2196F3" style={{ marginRight: 8 }} />
-          <Text style={styles.title}>Commande #{commande.id}</Text>
+          <Text style={styles.title}>{`Commande #${commande.id}`}</Text>
         </View>
         <Text style={styles.date}>Reçue le: {new Date(commande.dateCreation).toLocaleString()}</Text>
         <View style={[styles.statusBadge, { backgroundColor: statusColor(commande.status) }]}>
@@ -113,6 +122,9 @@ export default function CommandeDetailScreen({ route, navigation }) {
           <Text style={styles.sectionTitle}>Informations patient</Text>
         </View>
         <Text style={styles.info}>Patient ID: {commande.patientId}</Text>
+        <Text style={styles.info}>
+          Nom: {patient ? (patient.prenom && patient.nom ? `${patient.prenom} ${patient.nom}` : (patient.name || `${patient.prenom || ''} ${patient.nom || ''}`)) : '—'}
+        </Text>
         <Text style={styles.info}>Livraison: {commande.lieuLivraison}</Text>
         {commande.remarques && <Text style={styles.info}>Remarques: {commande.remarques}</Text>}
       </View>

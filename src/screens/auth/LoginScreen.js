@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, Image, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, Image } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const login = useAuthStore(state => state.login);
 
   const handleLogin = async () => {
@@ -44,22 +42,14 @@ export default function LoginScreen() {
           placeholder="votre@email.com"
         />
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Mot de passe</Text>
-          <View style={styles.passwordRow}>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="••••••••"
-              secureTextEntry={!showPassword}
-              placeholderTextColor="#9E9E9E"
-            />
-            <TouchableOpacity onPress={() => setShowPassword(s => !s)} style={styles.eyeButton}>
-              <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={22} color="#616161" />
-            </TouchableOpacity>
-          </View>
-        </View>
+        <Input
+          label="Mot de passe"
+          value={password}
+          onChangeText={setPassword}
+          placeholder="••••••••"
+          secureTextEntry
+          showToggle
+        />
 
         <Button
           title="Se connecter"
@@ -131,30 +121,5 @@ const styles = StyleSheet.create({
     color: '#616161',
     marginBottom: 4,
   },
-  inputContainer: {
-    marginVertical: 12
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 6,
-    color: '#424242'
-  },
-  passwordRow: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    backgroundColor: '#FAFAFA'
-  },
-  eyeButton: {
-    marginLeft: 8,
-    padding: 8
-  }
+  
 });

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+// Ionicons already imported above
 import Card from '../../components/common/Card';
 import { useCommandeStore } from '../../store/commandeStore';
 import { useMedicamentStore } from '../../store/medicamentStore';
@@ -8,6 +8,7 @@ import { COMMANDE_STATUS, USER_ROLES } from '../../utils/constants';
 import pharmacieList from '../../data/pharmacieList.json';
 import { useAuthStore } from '../../store/authStore';
 import CommandeItem from '../../components/patient/CommandeItem';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function DashboardScreen({ navigation }) {
   const { commandes, loadCommandes } = useCommandeStore();
@@ -24,6 +25,7 @@ export default function DashboardScreen({ navigation }) {
   const lowStock = medicaments?.filter(m => typeof m.quantiteStock === 'number' && m.quantiteStock < 5).length || 0;
 
   const { user } = useAuthStore();
+  const logout = useAuthStore(state => state.logout);
 
   // If logged-in user is a pharmacien, show pharmacy-specific metrics
   const isPharmacien = user && user.role === USER_ROLES.PHARMACIEN;
@@ -47,22 +49,40 @@ export default function DashboardScreen({ navigation }) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.heading}>{isPharmacien ? `Tableau de bord - ${user?.name || 'Pharmacie'}` : 'Tableau de bord'}</Text>
+      {isPharmacien && (
+        <View style={styles.header}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="medkit-outline" size={26} color="#fff" style={{ marginRight: 8 }} />
+            <Text style={styles.welcome}>{user?.name ? `Pharmacie - ${user.name}` : 'Pharmacie'}</Text>
+          </View>
+          <TouchableOpacity style={styles.logoutBtnHeader} onPress={async () => { await logout(); const parent = navigation.getParent && navigation.getParent(); if (parent) parent.navigate('Auth'); }}>
+            <Ionicons name="log-out-outline" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      )}
+      <Text style={styles.heading}>{isPharmacien ? `Tableau de bord` : 'Tableau de bord'}</Text>
 
       {isPharmacien ? (
         <>
-          <Card>
-            <View style={styles.row}>
-              <View style={[styles.iconWrap, { backgroundColor: '#2196F3' }]}>
-                <Ionicons name="document-text" size={28} color="#fff" />
+          <TouchableOpacity onPress={() => {
+            const parent = navigation.getParent && navigation.getParent();
+            // Request the CommandeList to show only this pharmacy's commandes
+            if (parent) parent.navigate('Commandes', { screen: 'CommandeList', params: { onlyMine: true, pharmacyId } });
+            else navigation.navigate('CommandeList', { onlyMine: true, pharmacyId });
+          }} activeOpacity={0.8}>
+            <Card>
+              <View style={styles.row}>
+                <View style={[styles.iconWrap, { backgroundColor: '#2196F3' }]}>
+                  <Ionicons name="document-text" size={28} color="#fff" />
+                </View>
+                <View style={styles.info}>
+                  <Text style={styles.label}>Vos Commandes</Text>
+                  <Text style={styles.value}>{totalCommandesForPh}</Text>
+                  <Text style={styles.sub}>{pendingForPh} en attente</Text>
+                </View>
               </View>
-              <View style={styles.info}>
-                <Text style={styles.label}>Vos Commandes</Text>
-                <Text style={styles.value}>{totalCommandesForPh}</Text>
-                <Text style={styles.sub}>{pendingForPh} en attente</Text>
-              </View>
-            </View>
-          </Card>
+            </Card>
+          </TouchableOpacity>
 
           <TouchableOpacity onPress={() => goToTab('Médicaments')} activeOpacity={0.8}>
             <Card>
@@ -97,11 +117,24 @@ export default function DashboardScreen({ navigation }) {
               <Text style={{ color: '#757575' }}>Aucune commande récente</Text>
             </Card>
           )}
-          {recentForPh.map(cmd => (
-            <TouchableOpacity key={cmd.id} onPress={() => navigation.navigate('CommandeDetail', { commandeId: cmd.id })}>
-              <CommandeItem commande={cmd} onPress={() => navigation.navigate('CommandeDetail', { commandeId: cmd.id })} />
-            </TouchableOpacity>
-          ))}
+          {recentForPh.map(cmd => {
+            const openDetail = () => {
+              const parent = navigation.getParent && navigation.getParent();
+              if (parent) {
+                // navigate to the Commandes tab and then to the CommandeDetail screen inside that stack
+                parent.navigate('Commandes', { screen: 'CommandeDetail', params: { commandeId: cmd.id } });
+              } else {
+                // fallback if parent not available
+                navigation.navigate('CommandeDetail', { commandeId: cmd.id });
+              }
+            };
+
+            return (
+              <TouchableOpacity key={cmd.id} onPress={openDetail}>
+                <CommandeItem commande={cmd} onPress={openDetail} />
+              </TouchableOpacity>
+            );
+          })}
         </>
       ) : (
         <>
@@ -179,6 +212,25 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#212121',
     marginBottom: 12
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    elevation: 4,
+    marginBottom: 12
+  },
+  welcome: { fontSize: 18, fontWeight: '600', color: '#fff' },
+  logoutBtnHeader: { padding: 6 },
+  subSmall: {
+    fontSize: 12,
+    color: '#424242',
+    marginTop: 4
   },
   row: {
     flexDirection: 'row',

@@ -4,8 +4,9 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuthStore } from '../../store/authStore';
 import { useCommandeStore } from '../../store/commandeStore';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { USER_ROLES } from '../../utils/constants';
 
-export default function CommandeListScreen({ navigation }) {
+export default function CommandeListScreen({ navigation, route }) {
   const [commandes, setCommandes] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user, logout } = useAuthStore();
@@ -21,9 +22,20 @@ export default function CommandeListScreen({ navigation }) {
   const loadData = async () => {
     setLoading(true);
     await loadCommandes();
-    const data = useCommandeStore.getState().commandes
-      .filter(c => c.pharmacienId === user?.id)
-      .sort((a, b) => new Date(b.dateCreation) - new Date(a.dateCreation));
+    // Load commandes and apply filters according to route params or role.
+    let data = useCommandeStore.getState().commandes || [];
+
+    // Default behavior: show only commandes for the connected pharmacy.
+    // Pass `showAll: true` in route.params to view all commandes (admin-style).
+    const showAll = route?.params?.showAll;
+    const pharmacyIdParam = route?.params?.pharmacyId;
+    const pid = pharmacyIdParam || user?.id;
+
+    if (!showAll && pid) {
+      data = data.filter(c => c.pharmacienId === pid);
+    }
+
+    data = data.sort((a, b) => new Date(b.dateCreation) - new Date(a.dateCreation));
     setCommandes(data);
     setLoading(false);
   };

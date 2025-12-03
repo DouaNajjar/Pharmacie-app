@@ -23,11 +23,12 @@ export default function Button({ title, onPress, variant = 'primary', disabled =
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#4CAF50',  // Vert apaisant pour domaine médical
-    paddingVertical: 16,
+    backgroundColor: '#4CAF50',
     paddingHorizontal: 24,
+    paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
+    alignSelf: 'stretch',
     marginVertical: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
     elevation: 5
   },
   secondary: {
-    backgroundColor: '#2196F3',  // Bleu clair pour actions secondaires
+    backgroundColor: '#2196F3',  
     borderWidth: 1,
     borderColor: '#2196F3'
   },
